@@ -32,7 +32,9 @@ extern "C" VerilatorHandle VerilatorAlloc() {
   return static_cast<VerilatorHandle>(top);
 }
 
-extern "C" void VerilatorDealloc(VerilatorHandle handle) { delete static_cast<Top *>(handle); }
+extern "C" void VerilatorDealloc(VerilatorHandle handle) {
+  delete static_cast<Top *>(handle);
+}
 
 extern "C" int VerilatorRead(VerilatorHandle handle, int id, int addr) {
   Top *top = static_cast<Top *>(handle);
@@ -43,7 +45,8 @@ extern "C" int VerilatorRead(VerilatorHandle handle, int id, int addr) {
   return top->out;
 }
 
-extern "C" void VerilatorWrite(VerilatorHandle handle, int id, int addr, int value) {
+extern "C" void VerilatorWrite(VerilatorHandle handle, int id, int addr,
+                               int value) {
   Top *top = static_cast<Top *>(handle);
   top->opcode = 1;
   top->id = id;
@@ -90,6 +93,6 @@ extern "C" void VerilatorRun(VerilatorHandle handle, int n) {
   }
 }
 
-}  // namespace contrib
-}  // namespace runtime
-}  // namespace tvm
+} // namespace contrib
+} // namespace runtime
+} // namespace tvm
