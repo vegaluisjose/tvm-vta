@@ -54,6 +54,7 @@ extern "C" void VerilatorWrite(VerilatorHandle handle, int id, int addr, int val
 
 extern "C" void VerilatorReset(VerilatorHandle handle, int n) {
   Top *top = static_cast<Top *>(handle);
+  top->opcode = 0;
   top->clock = 0;
   top->reset = 1;
   main_time = 0;
@@ -73,6 +74,7 @@ extern "C" void VerilatorReset(VerilatorHandle handle, int n) {
 
 extern "C" void VerilatorRun(VerilatorHandle handle, int n) {
   Top *top = static_cast<Top *>(handle);
+  top->opcode = 0;
   top->clock = 0;
   main_time = 0;
   while (!Verilated::gotFinish() &&
