@@ -49,18 +49,27 @@ extern "C" void verilator_add(VerilatorHandle handle, int* data, int* weight, in
 
 extern "C" void verilator_bias_add(VerilatorHandle handle, int* data, int* weight, int* out,
                                    int p_n_, int p_c_, int p_h_, int p_w_) {
+  int64_t round = p_w_ / LANES;
+  if (p_w_ % LANES != 0) {
+    round++;
+  }
   for (int64_t i = 0; i < (p_n_ * p_c_ * p_h_); ++i) {
-    for (int64_t j = 0; j < (p_w_ / LANES); ++j) {
+    for (int64_t j = 0; j < round; ++j) {
       for (int64_t k = 0; k < LANES; ++k) {
-        int64_t l = i * p_w_ + j * LANES + k;
-        int64_t m = j * LANES + k;
-        VerilatorWrite(handle, 1, k, data[l]);
-        VerilatorWrite(handle, 2, k, weight[m]);
+        int64_t l = j * LANES + k;
+        int64_t m = i * p_w_ + l;
+        if (l < p_w_) {
+          VerilatorWrite(handle, 1, k, data[m]);
+          VerilatorWrite(handle, 2, k, weight[l]);
+        }
       }
       VerilatorRun(handle, 1);
       for (int64_t k = 0; k < LANES; ++k) {
-        int64_t l = i * p_w_ + j * LANES + k;
-        out[l] = VerilatorRead(handle, 3, k);
+        int64_t l = j * LANES + k;
+        int64_t m = i * p_w_ + l;
+        if (l < p_w_) {
+          out[m] = VerilatorRead(handle, 3, k);
+        }
       }
     }
   }
