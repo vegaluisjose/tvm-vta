@@ -31,13 +31,13 @@ namespace tvm {
 namespace runtime {
 namespace contrib {
 
-extern "C" void verilator_add(VerilatorHandle handle, int* data, int* weight, int* out, int p_h_,
+extern "C" void verilator_add(VerilatorHandle handle, int* left, int* right, int* out, int p_h_,
                               int p_w_) {
   for (int64_t i = 0; i < (p_h_ * p_w_ / LANES); ++i) {
     for (int64_t j = 0; j < LANES; ++j) {
       int64_t k = i * LANES + j;
-      VerilatorWrite(handle, 1, j, data[k]);
-      VerilatorWrite(handle, 2, j, weight[k]);
+      VerilatorWrite(handle, 1, j, left[k]);
+      VerilatorWrite(handle, 2, j, right[k]);
     }
     VerilatorRun(handle, 1);
     for (int64_t j = 0; j < LANES; ++j) {
@@ -47,8 +47,8 @@ extern "C" void verilator_add(VerilatorHandle handle, int* data, int* weight, in
   }
 }
 
-extern "C" void verilator_bias_add(VerilatorHandle handle, int* data, int* weight, int* out,
-                                   int p_n_, int p_c_, int p_h_, int p_w_) {
+extern "C" void verilator_bias_add(VerilatorHandle handle, int* data, int* bias, int* out, int p_n_,
+                                   int p_c_, int p_h_, int p_w_) {
   int64_t round = p_w_ / LANES;
   if (p_w_ % LANES != 0) {
     round++;
@@ -60,7 +60,7 @@ extern "C" void verilator_bias_add(VerilatorHandle handle, int* data, int* weigh
         int64_t m = i * p_w_ + l;
         if (l < p_w_) {
           VerilatorWrite(handle, 1, k, data[m]);
-          VerilatorWrite(handle, 2, k, weight[l]);
+          VerilatorWrite(handle, 2, k, bias[l]);
         }
       }
       VerilatorRun(handle, 1);
